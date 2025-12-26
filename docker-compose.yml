@@ -1,0 +1,8 @@
+services:
+  Rackula:
+    image: ghcr.io/Rackula/Rackula:latest
+    # To build locally instead, comment out 'image' and uncomment 'build':
+    # build: ./deploy
+    ports:
+      - "8080:80"
+    restart: unless-stopped

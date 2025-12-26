@@ -1,0 +1,80 @@
+{
+  "name": "Rackula",
+  "version": "0.6.1",
+  "description": "Drag and drop rack visualizer",
+  "author": "ggfevans",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Rackula/Rackula.git"
+  },
+  "homepage": "https://github.com/Rackula/Rackula",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:e2e": "playwright test",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "prepare": "husky",
+    "process-images": "npx tsx scripts/process-images.ts",
+    "generate-bundled-images": "npx tsx scripts/generate-bundled-images.ts"
+  },
+  "devDependencies": {
+    "@eslint/compat": "^1.4.0",
+    "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.56.1",
+    "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/svelte": "^5.2.6",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^24.10.3",
+    "@types/pako": "^2.0.4",
+    "@types/umami-browser": "^2.18.0",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-svelte": "^3.13.0",
+    "globals": "^16.5.0",
+    "happy-dom": "^20.0.11",
+    "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-svelte": "^3.4.0",
+    "sharp": "^0.34.5",
+    "svelte": "^5.43.8",
+    "svelte-check": "^4.3.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.47.0",
+    "vite": "^7.2.2",
+    "vitest": "^3.2.3"
+  },
+  "lint-staged": {
+    "*.{js,ts,svelte,json,md,css,html}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@lucide/svelte": "^0.559.0",
+    "bits-ui": "^2.14.4",
+    "js-yaml": "^4.1.1",
+    "jspdf": "^3.0.4",
+    "jszip": "^3.10.1",
+    "pako": "^2.1.0",
+    "panzoom": "^9.4.3",
+    "qrcode": "^1.5.4",
+    "simple-icons": "^16.2.0",
+    "zod": "^4.1.13"
+  }
+}

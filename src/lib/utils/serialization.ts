@@ -1,0 +1,74 @@
+/**
+ * Layout Serialization and Factory Functions
+ */
+
+import type { Layout, Rack, FormFactor } from '$lib/types';
+import { VERSION } from '$lib/version';
+
+/**
+ * Create a new empty layout
+ * @param name - Layout name (default: "Racky McRackface")
+ * @returns New Layout object with empty device_types (starter library is a runtime constant)
+ */
+export function createLayout(name: string = 'Racky McRackface'): Layout {
+	return {
+		version: VERSION,
+		name,
+		rack: createDefaultRack(name),
+		device_types: [], // Starter library is a runtime constant, not stored in layout
+		settings: {
+			display_mode: 'label',
+			show_labels_on_images: false
+		}
+	};
+}
+
+/**
+ * Create a default rack for a new layout
+ * @param name - Rack name
+ * @returns A default Rack with empty devices
+ */
+function createDefaultRack(name: string): Rack {
+	return {
+		name,
+		height: 42,
+		width: 19,
+		desc_units: false,
+		form_factor: '4-post-cabinet',
+		starting_unit: 1,
+		position: 0,
+		devices: [],
+		view: 'front' // Runtime only
+	};
+}
+
+/**
+ * Create a rack with the given parameters
+ * @param name - Rack name
+ * @param height - Rack height in U
+ * @param width - Rack width (10 or 19)
+ * @param form_factor - Form factor
+ * @param desc_units - Whether units are numbered top-down
+ * @param starting_unit - First U number
+ * @returns A new Rack object
+ */
+export function createRack(
+	name: string,
+	height: number,
+	width: 10 | 19 = 19,
+	form_factor: FormFactor = '4-post-cabinet',
+	desc_units: boolean = false,
+	starting_unit: number = 1
+): Rack {
+	return {
+		name,
+		height,
+		width,
+		desc_units,
+		form_factor,
+		starting_unit,
+		position: 0,
+		devices: [],
+		view: 'front' // Runtime only
+	};
+}
