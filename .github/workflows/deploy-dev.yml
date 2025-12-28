@@ -44,7 +44,7 @@ jobs:
           build-args: |
             VITE_ENV=development
             VITE_UMAMI_ENABLED=true
-            VITE_UMAMI_SCRIPT_URL=https://d.racku.la/script.js
+            VITE_UMAMI_SCRIPT_URL=${{ vars.UMAMI_SCRIPT_URL }}
             VITE_UMAMI_WEBSITE_ID=${{ vars.UMAMI_DEV_WEBSITE_ID }}
 
   deploy:
