@@ -1190,11 +1190,11 @@ Production (nginx) includes these security headers:
 
 ```
 default-src 'self';
-script-src 'self' 'unsafe-inline' https://t.racku.la https://static.cloudflareinsights.com;
+script-src 'self' 'unsafe-inline' https://d.racku.la https://count.racku.la https://static.cloudflareinsights.com;
 style-src 'self' 'unsafe-inline';
 img-src 'self' data: blob:;
 font-src 'self';
-connect-src 'self' https://t.racku.la https://static.cloudflareinsights.com;
+connect-src 'self' https://d.racku.la https://count.racku.la https://static.cloudflareinsights.com;
 frame-ancestors 'self';
 ```
 
@@ -1202,7 +1202,7 @@ Notes:
 
 - `'unsafe-inline'` for styles required for Svelte scoped styles
 - `'unsafe-inline'` for scripts required for Cloudflare Web Analytics
-- Analytics domains whitelisted: Umami (t.racku.la) and Cloudflare Web Analytics
+- Analytics domains whitelisted: Umami (d.racku.la for dev, count.racku.la for prod) and Cloudflare Web Analytics
 - `data:` and `blob:` for images support export previews and device images
 - GitHub Pages (dev) does not support custom headers
 
@@ -2210,7 +2210,7 @@ Session properties are set via `umami.identify()` on script load:
 
 ### 20.7 Production Deployment
 
-The hosted app at `app.racku.la` uses a self-hosted Umami instance at `t.racku.la`.
+The hosted app at `app.racku.la` uses a self-hosted Umami instance at `count.racku.la`. The dev environment at `dev.racku.la` uses `d.racku.la`.
 
 ---
 

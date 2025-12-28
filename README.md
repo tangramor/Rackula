@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://count.racku.la">
+  <a href="https://app.racku.la">
     <img src="assets/Rackula-lockup-dark.svg#gh-dark-mode-only" alt="Rackula" width="420">
   </a>
 </p>
@@ -32,7 +32,7 @@ Plan your rack layout. Drag your devices in, move them around, export it. It run
 - **QR code sharing** - your layout lives in a URL, scan it and it just shows up
 
 ## Get Started 
-### **Use it right now:** [count.racku.la](https://count.racku.la)
+### **Use it right now:** [app.racku.la](https://app.racku.la)
 
 ### Selfhost with Docker
 
