@@ -14,6 +14,10 @@ ARG VITE_UMAMI_SCRIPT_URL
 COPY package*.json ./
 RUN npm ci
 
+# pin npm 11 because without it we default to 10.x
+RUN npm install -g npm@11
+RUN npm install --ignore-scripts
+
 # Copy source code and build
 COPY . .
 RUN npm run build
