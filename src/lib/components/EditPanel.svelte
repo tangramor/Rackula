@@ -297,7 +297,8 @@
   const deviceTypePlacementCount = $derived.by(() => {
     if (!selectedDeviceInfo) return 0;
     const slug = selectedDeviceInfo.device.slug;
-    return layoutStore.rack.devices.filter((d) => d.device_type === slug).length;
+    return layoutStore.rack.devices.filter((d) => d.device_type === slug)
+      .length;
   });
 
   // Sync device notes with selection
