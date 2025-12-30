@@ -348,3 +348,112 @@ npm run test:coverage
 3. Structure tests using `describe` blocks for grouping
 4. Follow AAA pattern in each test case
 5. Run tests locally before committing
+
+## Code Review Lessons
+
+These patterns emerged from code reviews and should be followed to avoid common issues:
+
+### Always Use Shared Factories
+
+Don't duplicate factory functions in test files. Always import from `factories.ts`:
+
+```typescript
+// Good - import shared factory
+import { createTestRack, createTestDeviceLibrary } from "./factories";
+
+// Avoid - local duplicate
+function createTestRack() {
+  /* ... */
+}
+```
+
+### Use Design Tokens for Colors
+
+Never use hardcoded color values. Always use CSS custom properties:
+
+```css
+/* Good - uses token */
+color: var(--colour-text-on-primary);
+
+/* Avoid - hardcoded */
+color: white;
+color: #ffffff;
+```
+
+### Test Both Success and Failure Paths
+
+For validation logic, add tests for rejection scenarios:
+
+```typescript
+it("shows error when validation fails", async () => {
+  // Set up scenario that triggers validation failure
+  layoutStore.placeDevice("rack-0", deviceType.slug, 20, "front");
+
+  // Try action that should fail
+  await fireEvent.click(screen.getByRole("button", { name: "12U" }));
+
+  // Verify error feedback
+  expect(screen.getByText(/cannot resize/i)).toBeInTheDocument();
+});
+```
+
+### Test Gesture Cancellation Paths
+
+For gesture handlers, test both completion and cancellation:
+
+```typescript
+// Test successful completion
+it("fires callback after duration", async () => {
+  /* ... */
+});
+
+// Test movement cancellation
+it("cancels when pointer moves beyond threshold", async () => {
+  /* ... */
+});
+
+// Test early release cancellation
+it("cancels when pointer released early", async () => {
+  /* ... */
+});
+```
+
+### Lint Rules Trump Refactoring Suggestions
+
+When code review suggests a refactor that conflicts with lint rules, prefer the lint-passing approach. Document the decision in the commit message:
+
+```
+Note: Kept single $effect for prop sync (granular effects conflict with
+svelte/prefer-writable-derived lint rule)
+```
+
+### Always Invoke Callback Props
+
+If a component accepts callback props like `onclose`, `onconfirm`, etc., ensure they are invoked at the appropriate time:
+
+```typescript
+function confirmClearRack() {
+  layoutStore.clearRackDevices(RACK_ID);
+  showClearConfirm = false;
+  onclose?.(); // Don't forget to invoke!
+}
+```
+
+### Ensure Progress Callbacks Complete
+
+For progress-tracking callbacks, ensure the final value is delivered before completion:
+
+```typescript
+timeoutId = setTimeout(() => {
+  // Cancel animation frame first
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId);
+  }
+
+  // Deliver final progress value
+  onProgress?.(1);
+
+  // Then invoke completion callback
+  callback();
+}, duration);
+```
