@@ -350,8 +350,8 @@
   /* Banana for scale easter egg container */
   .banana-container {
     position: absolute;
-    bottom: var(--space-2);
-    right: 0;
+    bottom: -10px;
+    right: -75px;
     pointer-events: none;
   }
 </style>

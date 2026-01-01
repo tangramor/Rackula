@@ -1,8 +1,6 @@
 /**
  * BananaForScale Component Tests
  * Tests for the silly "banana for scale" easter egg feature
- *
- * TDD: Write tests first, then implement component
  */
 
 import { describe, it, expect } from "vitest";
@@ -37,10 +35,9 @@ describe("BananaForScale", () => {
   describe("Accurate Scale", () => {
     // Scale: 1U = 1.75" = U_HEIGHT_PX (22px)
     // So 1" = 22px / 1.75 ≈ 12.57px
-    // Average banana: ~7" long × ~1.5" wide
+    // Average banana: ~7" long
     const PIXELS_PER_INCH = U_HEIGHT_PX / 1.75;
     const EXPECTED_LENGTH = Math.round(7 * PIXELS_PER_INCH); // ~88px
-    const _EXPECTED_WIDTH = Math.round(1.5 * PIXELS_PER_INCH); // ~19px (kept for documentation)
 
     it("banana length is approximately 7 inches in pixels", () => {
       const { container } = render(BananaForScale);
@@ -63,25 +60,24 @@ describe("BananaForScale", () => {
   describe("Visual Elements", () => {
     it("contains yellow banana body", () => {
       const { container } = render(BananaForScale);
-      // Look for yellow-ish fill color
+      // Look for yellow-ish fill color (new SVG uses #FFE082 and #FFCA28)
       const yellowPath = container.querySelector(
-        'path[fill="#FFE135"], path[fill="#F5D000"]',
+        'path[fill="#FFE082"], path[fill="#FFCA28"]',
       );
       expect(yellowPath).toBeTruthy();
     });
 
-    it("contains brown stem", () => {
+    it("contains green stem", () => {
       const { container } = render(BananaForScale);
-      // Look for brown fill colors
-      const stem = container.querySelector(
-        'ellipse[fill="#8B7355"], ellipse[fill="#6B5344"]',
-      );
+      // Look for green stem fill color (#C0CA33)
+      const stem = container.querySelector('path[fill="#C0CA33"]');
       expect(stem).toBeTruthy();
     });
 
-    it("contains brown end tip", () => {
+    it("contains brown tip", () => {
       const { container } = render(BananaForScale);
-      const tip = container.querySelector('ellipse[fill="#4A3728"]');
+      // Look for brown tip (#5D4037)
+      const tip = container.querySelector('path[fill="#5D4037"]');
       expect(tip).toBeTruthy();
     });
   });
@@ -96,36 +92,18 @@ describe("BananaForScale", () => {
     });
   });
 
-  describe("Orientation", () => {
-    it("stands nearly vertical with stem pointing up", () => {
+  describe("SVG Structure", () => {
+    it("uses 1024x1024 viewBox for detailed banana icon", () => {
       const { container } = render(BananaForScale);
       const svg = container.querySelector("svg");
-      const style = svg?.getAttribute("style") || "";
-
-      // SVG is drawn horizontally (stem left at x≈6, tip right at x≈85)
-      // To stand upright with stem UP: rotate counter-clockwise ~-80deg
-      // This makes stem point up, tip point down (standing on tip)
-      // A slight lean (5-15deg from vertical) looks natural
-
-      // Should rotate counter-clockwise (negative angle) between -75 and -85 degrees
-      const rotateMatch = style.match(/rotate\((-?\d+)deg\)/);
-      expect(rotateMatch).toBeTruthy();
-      const angle = parseInt(rotateMatch![1], 10);
-      expect(angle).toBeGreaterThanOrEqual(-85);
-      expect(angle).toBeLessThanOrEqual(-75);
+      expect(svg?.getAttribute("viewBox")).toBe("0 0 1024 1024");
     });
 
-    it("pivots from tip end to stand on bottom", () => {
+    it("contains multiple path elements for banana details", () => {
       const { container } = render(BananaForScale);
-      const svg = container.querySelector("svg");
-      const style = svg?.getAttribute("style") || "";
-
-      // After rotation, the tip (right side of SVG) becomes the bottom
-      // Transform-origin should be at the tip end so banana "stands" on it
-      // Using "right center" or "100% 50%" or similar
-      expect(style).toMatch(
-        /transform-origin:\s*(right center|100% 50%|right)/,
-      );
+      const paths = container.querySelectorAll("path");
+      // Should have at least body, shading, stem, tip paths
+      expect(paths.length).toBeGreaterThanOrEqual(4);
     });
   });
 });
