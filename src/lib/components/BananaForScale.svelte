@@ -9,13 +9,6 @@
 <script lang="ts">
   import { U_HEIGHT_PX } from "$lib/constants/layout";
 
-  interface Props {
-    /** Vertical offset from bottom of rack in pixels */
-    bottomOffset?: number;
-  }
-
-  let { bottomOffset = 8 }: Props = $props();
-
   const PIXELS_PER_INCH = U_HEIGHT_PX / 1.75;
   const BANANA_LENGTH_INCHES = 7;
   const bananaLength = Math.round(BANANA_LENGTH_INCHES * PIXELS_PER_INCH);
