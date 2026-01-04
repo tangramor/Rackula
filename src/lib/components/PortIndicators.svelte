@@ -36,9 +36,19 @@
     onPortClick,
   }: Props = $props();
 
-  // Tooltip delay timer
-  let hoverTimeoutId: ReturnType<typeof setTimeout> | null = null;
+  // Tooltip delay timer (reactive state for proper cleanup)
+  let hoverTimeoutId = $state<ReturnType<typeof setTimeout> | null>(null);
   const TOOLTIP_DELAY_MS = 300;
+
+  // Cleanup timeout on component unmount to prevent dangling timers
+  $effect(() => {
+    return () => {
+      if (hoverTimeoutId) {
+        clearTimeout(hoverTimeoutId);
+        hoverTimeoutId = null;
+      }
+    };
+  });
 
   // Color scheme by interface type (NetBox-inspired)
   // Uses CSS custom properties from tokens.css for design system consistency

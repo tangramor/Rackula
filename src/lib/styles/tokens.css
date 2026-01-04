@@ -13,6 +13,7 @@
 
   /* Spacing Scale (4px base) */
   --space-0: 0;
+  --space-0-5: 0.125rem; /* 2px - for very compact elements */
   --space-1: 0.25rem; /* 4px */
   --space-1-5: 0.375rem; /* 6px */
   --space-2: 0.5rem; /* 8px */
@@ -323,6 +324,7 @@
   --z-bottom-sheet: 200;
   --z-modal: 200;
   --z-toast: 300;
+  --z-tooltip: 400; /* Above toast for hover tooltips */
 
   /* Touch Targets (WCAG 2.5.5 Level AAA - minimum 44×44px, we use 48px) */
   --touch-target-min: 48px;

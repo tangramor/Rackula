@@ -69,7 +69,7 @@
 <style>
   .port-tooltip {
     position: fixed;
-    z-index: var(--z-tooltip, 1000);
+    z-index: var(--z-tooltip);
     padding: var(--space-2);
     background-color: var(--colour-surface-overlay);
     color: var(--colour-text-inverse);
@@ -82,7 +82,7 @@
     gap: var(--space-1);
     min-width: 120px;
     max-width: 200px;
-    transform: translate(-50%, -100%) translateY(-8px);
+    transform: translate(-50%, -100%) translateY(calc(-1 * var(--space-2)));
     animation: tooltip-fade-in var(--duration-fast, 100ms)
       var(--ease-out, ease-out);
   }
@@ -90,11 +90,11 @@
   @keyframes tooltip-fade-in {
     from {
       opacity: 0;
-      transform: translate(-50%, -100%) translateY(-4px);
+      transform: translate(-50%, -100%) translateY(calc(-1 * var(--space-1)));
     }
     to {
       opacity: 1;
-      transform: translate(-50%, -100%) translateY(-8px);
+      transform: translate(-50%, -100%) translateY(calc(-1 * var(--space-2)));
     }
   }
 
@@ -114,10 +114,10 @@
     display: inline-flex;
     align-items: center;
     gap: var(--space-1);
-    padding: 2px 6px;
+    padding: var(--space-0-5) var(--space-1-5);
     border-radius: var(--radius-xs, 2px);
-    font-size: 10px;
-    font-weight: 500;
+    font-size: var(--font-size-2xs);
+    font-weight: var(--font-weight-medium);
   }
 
   .port-tooltip-badge.mgmt {

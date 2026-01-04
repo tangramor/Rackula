@@ -172,4 +172,40 @@ describe("Port Tooltip Store", () => {
       });
     });
   });
+
+  describe("coordinate edge cases", () => {
+    const port: InterfaceTemplate = { name: "test-port", type: "1000base-t" };
+
+    it("should accept negative coordinates without clamping", () => {
+      showPortTooltip(port, -100, -50);
+
+      const state = getPortTooltipState();
+      expect(state.x).toBe(-100);
+      expect(state.y).toBe(-50);
+    });
+
+    it("should accept very large coordinates without clamping", () => {
+      showPortTooltip(port, 10000, 50000);
+
+      const state = getPortTooltipState();
+      expect(state.x).toBe(10000);
+      expect(state.y).toBe(50000);
+    });
+
+    it("should accept zero coordinates", () => {
+      showPortTooltip(port, 0, 0);
+
+      const state = getPortTooltipState();
+      expect(state.x).toBe(0);
+      expect(state.y).toBe(0);
+    });
+
+    it("should accept fractional coordinates", () => {
+      showPortTooltip(port, 123.456, 789.012);
+
+      const state = getPortTooltipState();
+      expect(state.x).toBe(123.456);
+      expect(state.y).toBe(789.012);
+    });
+  });
 });
