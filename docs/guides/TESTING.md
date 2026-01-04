@@ -322,6 +322,104 @@ Run coverage report:
 npm run test:coverage
 ```
 
+## Test Economics
+
+Not all tests provide equal value. Focus testing effort where bugs are likely and costly.
+
+### High-Value Tests (Write More)
+
+| Area               | Why                  | Example                                    |
+| ------------------ | -------------------- | ------------------------------------------ |
+| Complex algorithms | High bug density     | Collision detection, coordinate transforms |
+| State machines     | Many edge cases      | Undo/redo, drag-drop state                 |
+| User flows         | User-facing impact   | Place device → move → delete               |
+| Error recovery     | Often untested       | Invalid file load, network failure         |
+| Integration points | Interface mismatches | Store ↔ component sync                     |
+
+### Low-Value Tests (Write Fewer or None)
+
+| Area                    | Why                 | Better Alternative      |
+| ----------------------- | ------------------- | ----------------------- |
+| Static data             | No logic to test    | Schema validation       |
+| Hardcoded counts        | Breaks on additions | `length > 0` or none    |
+| Schema-validated fields | Redundant           | One schema test         |
+| Simple getters          | Trivial             | TypeScript types        |
+| CSS/styling             | Visual, not logical | Visual regression tools |
+
+### The Zero-Change Rule
+
+**Adding data should require zero test changes.**
+
+If adding a device to a brand pack breaks tests, those tests are testing _data_, not _behavior_. Refactor to:
+
+```typescript
+// ❌ Bad: Breaks when you add a device
+it("exports 68 devices", () => {
+  expect(dellDevices).toHaveLength(68);
+});
+
+// ✅ Good: Validates behavior, not count
+it("all devices pass schema validation", () => {
+  for (const device of dellDevices) {
+    expect(() => DeviceTypeSchema.parse(device)).not.toThrow();
+  }
+});
+
+// ✅ Better: Parameterized, one test per device
+it.each(dellDevices)("$slug validates against schema", (device) => {
+  expect(() => DeviceTypeSchema.parse(device)).not.toThrow();
+});
+```
+
+### Trust the Schema
+
+Zod schemas already validate:
+
+- Required fields exist
+- Types are correct
+- Enums match allowed values
+- Patterns match (slugs, colors)
+
+**Don't duplicate this in tests.** One test that runs `Schema.parse()` on all data is sufficient.
+
+### Consolidation Patterns
+
+**Multiple similar test files → One parameterized file:**
+
+```typescript
+// ❌ Bad: 6 files with identical structure
+// brandpacks-dell.test.ts, brandpacks-ubiquiti.test.ts, ...
+
+// ✅ Good: One file, all brands
+const ALL_BRAND_PACKS = [
+  { name: "Dell", devices: dellDevices },
+  { name: "Ubiquiti", devices: ubiquitiDevices },
+  // ...
+];
+
+describe.each(ALL_BRAND_PACKS)("$name brand pack", ({ devices }) => {
+  it("all devices validate", () => {
+    /* ... */
+  });
+  it("no duplicate slugs", () => {
+    /* ... */
+  });
+});
+```
+
+### Test:Source Ratio
+
+| Ratio     | Interpretation                    |
+| --------- | --------------------------------- |
+| < 0.3:1   | Under-tested, risky               |
+| 0.5–0.7:1 | Healthy balance                   |
+| 0.8–1.0:1 | Possibly over-tested              |
+| > 1.0:1   | Likely testing data, not behavior |
+
+Current project: **1.14:1** — indicates over-testing of low-value areas.
+
+---
+
 ## Best Practices
 
 ### Do
@@ -332,6 +430,8 @@ npm run test:coverage
 - Test edge cases and error states
 - Keep tests focused and independent
 - Use `data-testid` for E2E selectors
+- Trust schema validation for data correctness
+- Use parameterized tests for similar cases
 
 ### Don't
 
@@ -340,6 +440,9 @@ npm run test:coverage
 - Share state between tests
 - Skip cleanup in `beforeEach`/`afterEach`
 - Over-mock - prefer real implementations when practical
+- Assert exact counts on data arrays
+- Duplicate schema validation logic in tests
+- Create one test file per data source (consolidate instead)
 
 ## Adding New Tests
 

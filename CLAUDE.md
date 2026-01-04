@@ -236,6 +236,26 @@ If none of those conditions are met, proceed immediately to the next prompt.
 3. Implement to pass
 4. Commit
 
+**What to test (high value):**
+
+- Complex logic (collision detection, coordinate math, state machines)
+- User-facing behavior (can user place device? does undo work?)
+- Error paths and edge cases
+- Integration between components
+
+**What NOT to test (low value):**
+
+- Static data (brand packs, device libraries) — schema validates this
+- Hardcoded counts (`expect(devices).toHaveLength(68)`) — breaks on intentional changes
+- Properties already validated by Zod schemas
+- Simple getters, trivial functions, pass-through code
+
+**The Zero-Change Rule:** Adding a device to a brand pack should require ZERO test file changes. If tests break, they're testing data, not behavior.
+
+**Trust the Schema:** If `DeviceTypeSchema.parse()` passes, don't re-test individual fields. One schema validation test covers all devices.
+
+See `docs/guides/TESTING.md` for comprehensive testing guidelines.
+
 ### Commands
 
 ```bash
