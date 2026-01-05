@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.15] - 2026-01-05
+
+### Fixed
+
+- Safari coordinate conversion bug causing drop target offset when zoomed (replaced getScreenCTM with getBoundingClientRect) (#424)
+- Safari text selection during device drag (#424)
+- Safari logo disappearance in party mode (#423)
+
+### Technical
+
+- Audit and migrate remaining foreignObject elements to SVG-native implementations (#420, PR #422)
+
 ## [0.6.14] - 2026-01-04
 
 ## Added
