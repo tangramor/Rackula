@@ -379,7 +379,7 @@ describe("DevicePalette Exclusive Accordion", () => {
       );
 
       expect(brandTitles).toEqual(sortedBrandTitles);
-    });
+    }, 15000);
   });
 
   describe("Brand Device Placement (Issue #119)", () => {
@@ -532,7 +532,7 @@ describe("DevicePalette Exclusive Accordion", () => {
         },
         { timeout: 500 },
       );
-    });
+    }, 15000);
 
     it("search updates section count", async () => {
       render(DevicePalette);

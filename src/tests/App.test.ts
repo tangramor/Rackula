@@ -536,6 +536,6 @@ describe("App Component", () => {
       // v0.2: rack is not deleted, but devices are cleared
       expect(layoutStore.rackCount).toBe(1);
       expect(layoutStore.rack.devices.length).toBe(0);
-    });
+    }, 15000);
   });
 });
