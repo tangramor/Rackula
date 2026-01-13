@@ -77,7 +77,12 @@ npm run format
 
 # Type checking
 npm run check
+
+# Regenerate lockfile (if CI fails with sync errors)
+npm run refresh-lockfile
 ```
+
+**Lockfile sync issues:** If CI fails with "package.json and package-lock.json are out of sync", run `npm run refresh-lockfile` to regenerate the lockfile from a clean state.
 
 ### Testing
 
@@ -112,22 +117,22 @@ This project uses Svelte 5 with runes. Use the new reactivity primitives:
 
 ```svelte
 <script lang="ts">
-	// State
-	let count = $state(0);
+  // State
+  let count = $state(0);
 
-	// Derived values
-	let doubled = $derived(count * 2);
+  // Derived values
+  let doubled = $derived(count * 2);
 
-	// Side effects
-	$effect(() => {
-		console.log('Count changed:', count);
-	});
+  // Side effects
+  $effect(() => {
+    console.log("Count changed:", count);
+  });
 
-	// Props
-	interface Props {
-		name: string;
-	}
-	let { name }: Props = $props();
+  // Props
+  interface Props {
+    name: string;
+  }
+  let { name }: Props = $props();
 </script>
 ```
 
