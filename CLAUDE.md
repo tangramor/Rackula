@@ -439,7 +439,10 @@ npm run test:run     # Unit tests (CI)
 npm run test:e2e     # Playwright E2E
 npm run build        # Production build
 npm run lint         # ESLint check
+npm run refresh-lockfile  # Regenerate package-lock.json from scratch
 ```
+
+**Lockfile issues:** If CI fails with "package.json and package-lock.json are out of sync", run `npm run refresh-lockfile` to regenerate the lockfile from a clean state.
 
 ### Debug Logging
 
