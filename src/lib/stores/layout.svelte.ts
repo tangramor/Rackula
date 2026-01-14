@@ -822,6 +822,13 @@ function reorderRacksInGroup(
     return { error: "Group not found" };
   }
 
+  layoutDebug.group(
+    "reordering racks in group %s: %o -> %o",
+    groupId,
+    group.rack_ids,
+    newOrder,
+  );
+
   // Validate same racks, just reordered
   const currentSet = new Set(group.rack_ids);
   const newSet = new Set(newOrder);
@@ -839,6 +846,10 @@ function reorderRacksInGroup(
 
   // No change needed if order is the same
   if (JSON.stringify(group.rack_ids) === JSON.stringify(newOrder)) {
+    layoutDebug.group(
+      "reorder skipped - order unchanged for group %s",
+      groupId,
+    );
     return {};
   }
 
