@@ -3,6 +3,7 @@
 **Date:** 2026-01-14
 **Status:** Approved
 **Design Influence:** Tom Geismar — geometric simplicity, iconic forms, purposeful negative space
+**Icon Library:** [Iconoir](https://iconoir.com/) — 1,671 clean stroke icons, no signup required
 
 ## Problem
 
@@ -30,19 +31,24 @@ Three zones with clear purpose:
 
 Five icon-only buttons (36×36px hit targets, 18px icons):
 
-| Icon | Action     | Notes                                             |
-| ---- | ---------- | ------------------------------------------------- |
-| `+`  | New Rack   | IconPlus                                          |
-| `↶`  | Undo       | Disabled at 40% opacity when stack empty          |
-| `↷`  | Redo       | Disabled at 40% opacity when stack empty          |
-| `👁` | View Mode  | **Morphing icon** — cycles Labels → Images → Both |
-| `⛶`  | Reset View | IconFitAll                                        |
+| Action     | Iconoir Icon | Notes                                             |
+| ---------- | ------------ | ------------------------------------------------- |
+| New Rack   | `plus`       | Simple plus                                       |
+| Undo       | `undo`       | Disabled at 40% opacity when stack empty          |
+| Redo       | `redo`       | Disabled at 40% opacity when stack empty          |
+| View Mode  | (morphing)   | **Morphing icon** — cycles Labels → Images → Both |
+| Reset View | `compress`   | Fit to bounds                                     |
 
 **View mode morphing:**
 
-- Labels mode → `IconLabel` (T icon)
-- Images mode → `IconImage` (picture icon)
-- Both mode → `IconImageLabel` (new combined icon)
+- Labels mode → `text` (T icon)
+- Images mode → `media-image` (picture icon)
+- Both mode → custom overlay of `text` + `media-image`
+
+**Dropdown triggers:**
+
+- File menu → `folder`
+- Settings menu → `settings` (gear)
 
 ### Icon Visual Treatment
 
@@ -97,22 +103,33 @@ Full lockup (icon + "Rackula" text) stays visible:
 
 ## Implementation
 
+### Dependencies
+
+Install Iconoir for Svelte:
+
+```bash
+npm install @iconoir/svelte
+```
+
 ### New Components
 
-1. **`IconSettings.svelte`** — gear/cog icon for Settings dropdown trigger
-2. **`IconImageLabel.svelte`** — combined icon for "Both" display mode
+1. **`IconImageLabel.svelte`** — combined icon for "Both" display mode (custom overlay)
+2. **`FileMenu.svelte`** — File dropdown (Save, Load, Export, Share)
+3. **`SettingsMenu.svelte`** — Settings dropdown (Theme, Annotations, Banana)
 
 ### Modified Components
 
-1. **`Toolbar.svelte`** — new three-zone layout structure
-2. **`ToolbarMenu.svelte`** → split into:
-   - **`FileMenu.svelte`** — Save, Load, Export, Share
-   - **`SettingsMenu.svelte`** — Theme, Annotations, Banana
-3. **`HelpPanel.svelte`** — remove Banana for Scale toggle
+1. **`Toolbar.svelte`** — new three-zone layout structure, use Iconoir icons
+2. **`HelpPanel.svelte`** — remove Banana for Scale toggle
 
 ### Deleted Components
 
 - `ToolbarMenu.svelte` (replaced by FileMenu + SettingsMenu)
+- Custom icon components replaced by Iconoir: `IconPlus`, `IconUndo`, `IconRedo`, `IconSave`, `IconLabel`, `IconImage`, `IconFitAll`
+
+### Future Work
+
+See epic issue for standardizing on Iconoir across the entire project.
 
 ## Responsive Behavior
 
