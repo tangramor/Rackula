@@ -25,3 +25,13 @@ export { default as IconNote } from "./IconNote.svelte";
 // Rack icons for wizard layout type selection
 export { default as ColumnRackIcon } from "./ColumnRackIcon.svelte";
 export { default as BayedRackIcon } from "./BayedRackIcon.svelte";
+
+// Phosphor Bold icons for toolbar
+export { default as IconPlusBold } from "./IconPlusBold.svelte";
+export { default as IconUndoBold } from "./IconUndoBold.svelte";
+export { default as IconRedoBold } from "./IconRedoBold.svelte";
+export { default as IconTextBold } from "./IconTextBold.svelte";
+export { default as IconImageBold } from "./IconImageBold.svelte";
+export { default as IconFitAllBold } from "./IconFitAllBold.svelte";
+export { default as IconFolderBold } from "./IconFolderBold.svelte";
+export { default as IconGearBold } from "./IconGearBold.svelte";
