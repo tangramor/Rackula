@@ -34,6 +34,14 @@
   let rackNotes = $state(untrack(() => rack.notes ?? ""));
   let resizeError = $state<string | null>(null);
 
+  // Check if this rack is part of a bayed group
+  const rackGroup = $derived(layoutStore.getRackGroupForRack(rack.id));
+  const isBayedRack = $derived(rackGroup?.layout_preset === "bayed");
+  const bayCount = $derived(rackGroup?.rack_ids.length ?? 1);
+
+  // State for bay count changes
+  let bayCountError = $state<string | null>(null);
+
   // State for clear rack confirmation
   let showClearConfirm = $state(false);
 
@@ -113,6 +121,19 @@
     attemptHeightChange(preset);
   }
 
+  // Handle bay count change atomically
+  function handleBayCountChange(newCount: number) {
+    if (!rackGroup) return;
+
+    bayCountError = null;
+
+    // Use atomic setBayCount which validates upfront before making changes
+    const result = layoutStore.setBayCount(rackGroup.id, newCount);
+    if (result.error) {
+      bayCountError = result.error;
+    }
+  }
+
   // Clear all devices from rack
   function handleClearRack() {
     showClearConfirm = true;
@@ -170,6 +191,40 @@
         {/each}
       </div>
     </div>
+
+    <!-- Bay Count (only for bayed racks) -->
+    {#if isBayedRack}
+      <div class="form-group">
+        <span class="form-label">Bay Count</span>
+        <div
+          class="bay-count-controls"
+          role="group"
+          aria-label="Bay count controls"
+        >
+          <button
+            type="button"
+            class="bay-btn"
+            onclick={() => handleBayCountChange(bayCount - 1)}
+            disabled={bayCount <= 2}
+            aria-label="Remove bay"
+          >
+            −
+          </button>
+          <span class="bay-count-display">{bayCount}</span>
+          <button
+            type="button"
+            class="bay-btn"
+            onclick={() => handleBayCountChange(bayCount + 1)}
+            aria-label="Add bay"
+          >
+            +
+          </button>
+        </div>
+        {#if bayCountError}
+          <p class="helper-text error">{bayCountError}</p>
+        {/if}
+      </div>
+    {/if}
 
     <!-- U Numbering Direction -->
     <div class="form-group">
@@ -267,7 +322,8 @@
     gap: var(--space-1);
   }
 
-  .form-group label {
+  .form-group label,
+  .form-group .form-label {
     font-size: var(--font-size-sm);
     font-weight: 500;
     color: var(--colour-text-secondary);
@@ -317,6 +373,50 @@
     gap: var(--space-2);
     margin-top: var(--space-2);
     flex-wrap: wrap;
+  }
+
+  .bay-count-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .bay-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--touch-target-min);
+    height: var(--touch-target-min);
+    font-size: var(--font-size-xl);
+    font-weight: 500;
+    color: var(--colour-text);
+    background: var(--colour-surface-secondary);
+    border: 1px solid var(--colour-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .bay-btn:hover:not(:disabled) {
+    background: var(--colour-surface-hover);
+    border-color: var(--colour-selection);
+  }
+
+  .bay-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .bay-btn:focus-visible {
+    outline: 2px solid var(--colour-focus-ring);
+    outline-offset: 2px;
+  }
+
+  .bay-count-display {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    min-width: 2ch;
+    text-align: center;
   }
 
   .preset-btn {
