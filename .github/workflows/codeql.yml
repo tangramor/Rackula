@@ -1,10 +1,16 @@
 name: "CodeQL"
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/**"
+      - "src/**"
   pull_request:
     branches: [main]
   schedule:
     - cron: "35 11 * * 0" # Weekly on Sunday
+  workflow_dispatch:
 
 jobs:
   analyze:
