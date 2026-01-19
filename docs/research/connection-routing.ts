@@ -17,7 +17,6 @@ import {
 } from "../../src/lib/constants/layout";
 
 // Port rendering constants (from PortIndicators.svelte)
-const PORT_RADIUS = 3;
 const PORT_SPACING = 8;
 const PORT_Y_OFFSET = 8;
 
