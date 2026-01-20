@@ -63,6 +63,7 @@ import {
   createCreateRackGroupCommand,
   createUpdateRackGroupCommand,
   createDeleteRackGroupCommand,
+  createBatchCommand,
   type DeviceTypeCommandStore,
   type DeviceCommandStore,
   type RackCommandStore,
@@ -289,6 +290,7 @@ export function getLayoutStore() {
     addDeviceTypeRecorded,
     updateDeviceTypeRecorded,
     deleteDeviceTypeRecorded,
+    deleteMultipleDeviceTypesRecorded,
     placeDeviceRecorded,
     moveDeviceRecorded,
     removeDeviceRecorded,
@@ -2393,6 +2395,71 @@ function deleteDeviceTypeRecorded(slug: string): void {
   );
   history.execute(command);
   isDirty = true;
+}
+
+/**
+ * Delete multiple device types with single undo/redo support
+ * Used for bulk cleanup operations
+ * @param slugs - Array of device type slugs to delete
+ * @returns Number of device types actually deleted
+ */
+function deleteMultipleDeviceTypesRecorded(slugs: string[]): number {
+  layoutDebug.state(
+    "deleteMultipleDeviceTypesRecorded: received %d slugs",
+    slugs.length,
+  );
+
+  if (slugs.length === 0) {
+    layoutDebug.state(
+      "deleteMultipleDeviceTypesRecorded: early return - no slugs",
+    );
+    return 0;
+  }
+
+  const history = getHistoryStore();
+  const adapter = getCommandStoreAdapter();
+  const commands: ReturnType<typeof createDeleteDeviceTypeCommand>[] = [];
+
+  for (const slug of slugs) {
+    const existing = findDeviceTypeInArray(layout.device_types, slug);
+    if (!existing) continue;
+
+    const placedDevices = getPlacedDevicesForType(slug);
+    const command = createDeleteDeviceTypeCommand(
+      existing,
+      placedDevices,
+      adapter,
+    );
+    commands.push(command);
+  }
+
+  if (commands.length === 0) {
+    layoutDebug.state(
+      "deleteMultipleDeviceTypesRecorded: no valid commands created",
+    );
+    return 0;
+  }
+
+  // Create a batch command for single undo
+  const count = commands.length;
+  const description =
+    count === 1 ? "Delete device type" : `Delete ${count} device types`;
+
+  layoutDebug.state(
+    "deleteMultipleDeviceTypesRecorded: executing batch command - %s",
+    description,
+  );
+
+  const batchCommand = createBatchCommand(description, commands);
+  history.execute(batchCommand);
+  isDirty = true;
+
+  layoutDebug.state(
+    "deleteMultipleDeviceTypesRecorded: completed - deleted %d device types",
+    count,
+  );
+
+  return count;
 }
 
 /**
