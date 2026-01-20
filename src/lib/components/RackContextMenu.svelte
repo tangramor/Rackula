@@ -15,6 +15,8 @@
     onOpenChange?: (open: boolean) => void;
     /** Add device callback (opens device library) */
     onadddevice?: () => void;
+    /** Export rack callback (opens export dialog with this rack pre-selected) */
+    onexport?: () => void;
     /** Edit rack callback (opens rack settings) */
     onedit?: () => void;
     /** Rename rack callback */
@@ -31,6 +33,7 @@
     open = $bindable(false),
     onOpenChange,
     onadddevice,
+    onexport,
     onedit,
     onrename,
     onduplicate,
@@ -58,42 +61,63 @@
 
   <ContextMenu.Portal>
     <ContextMenu.Content class="context-menu-content" sideOffset={5}>
-      <ContextMenu.Item
-        class="context-menu-item"
-        onSelect={handleSelect(onadddevice)}
-      >
-        <span class="context-menu-label">Add Device</span>
-      </ContextMenu.Item>
+      {#if onadddevice}
+        <ContextMenu.Item
+          class="context-menu-item"
+          onSelect={handleSelect(onadddevice)}
+        >
+          <span class="context-menu-label">Add Device</span>
+        </ContextMenu.Item>
+      {/if}
 
-      <ContextMenu.Item
-        class="context-menu-item"
-        onSelect={handleSelect(onedit)}
-      >
-        <span class="context-menu-label">Edit Rack</span>
-      </ContextMenu.Item>
+      {#if onexport}
+        <ContextMenu.Item
+          class="context-menu-item"
+          onSelect={handleSelect(onexport)}
+        >
+          <span class="context-menu-label">Export...</span>
+        </ContextMenu.Item>
+      {/if}
 
-      <ContextMenu.Item
-        class="context-menu-item"
-        onSelect={handleSelect(onrename)}
-      >
-        <span class="context-menu-label">Rename</span>
-      </ContextMenu.Item>
+      {#if onedit}
+        <ContextMenu.Item
+          class="context-menu-item"
+          onSelect={handleSelect(onedit)}
+        >
+          <span class="context-menu-label">Edit Rack</span>
+        </ContextMenu.Item>
+      {/if}
 
-      <ContextMenu.Item
-        class="context-menu-item"
-        onSelect={handleSelect(onduplicate)}
-      >
-        <span class="context-menu-label">Duplicate Rack</span>
-      </ContextMenu.Item>
+      {#if onrename}
+        <ContextMenu.Item
+          class="context-menu-item"
+          onSelect={handleSelect(onrename)}
+        >
+          <span class="context-menu-label">Rename</span>
+        </ContextMenu.Item>
+      {/if}
 
-      <ContextMenu.Separator class="context-menu-separator" />
+      {#if onduplicate}
+        <ContextMenu.Item
+          class="context-menu-item"
+          onSelect={handleSelect(onduplicate)}
+        >
+          <span class="context-menu-label">Duplicate Rack</span>
+        </ContextMenu.Item>
+      {/if}
 
-      <ContextMenu.Item
-        class="context-menu-item context-menu-item--destructive"
-        onSelect={handleSelect(ondelete)}
-      >
-        <span class="context-menu-label">Delete Rack</span>
-      </ContextMenu.Item>
+      {#if ondelete && (onadddevice || onexport || onedit || onrename || onduplicate)}
+        <ContextMenu.Separator class="context-menu-separator" />
+      {/if}
+
+      {#if ondelete}
+        <ContextMenu.Item
+          class="context-menu-item context-menu-item--destructive"
+          onSelect={handleSelect(ondelete)}
+        >
+          <span class="context-menu-label">Delete Rack</span>
+        </ContextMenu.Item>
+      {/if}
     </ContextMenu.Content>
   </ContextMenu.Portal>
 </ContextMenu.Root>
