@@ -3,42 +3,110 @@ import { cleanup } from "@testing-library/svelte";
 import { afterEach, beforeEach, vi } from "vitest";
 
 /*
- * Targeted bits-ui error suppression
+ * Targeted error suppression for test noise
  *
- * bits-ui's body-scroll-lock sets timeouts that can fire after test teardown,
- * causing "document is not defined" errors. This is benign in tests.
+ * 1. bits-ui's body-scroll-lock sets timeouts that can fire after test teardown,
+ *    causing "document is not defined" errors. This is benign in tests.
  *
- * Strategy:
+ * 2. Happy-DOM's AsyncTaskManager.abortAll() logs DOMException [AbortError]
+ *    when aborting pending fetch operations during teardown. This is expected
+ *    cleanup behavior and not indicative of test failures.
+ *
+ * Strategy (5 mechanisms):
  * 1. vi.clearAllTimers() in afterEach prevents most timer-related errors
- * 2. Console.error filter catches remaining scroll lock messages
- * 3. Process uncaughtException handler catches async cleanup errors
+ * 2. console.error filter catches scroll lock and Happy-DOM abort messages
+ * 3. process.on('uncaughtException') handler catches async cleanup errors
+ * 4. process.on('unhandledRejection') handler catches async cleanup rejections
+ * 5. process.stderr.write interception filters Happy-DOM abort output
  *
  * This targeted approach replaces the blanket dangerouslyIgnoreUnhandledErrors.
  */
+
+// Shared helper functions for error detection
+const isAbortMessage = (message: string): boolean =>
+  message.includes("AbortError") ||
+  message.includes("The operation was aborted");
+
+const isFromHappyDom = (message: string): boolean =>
+  message.includes("happy-dom") || message.includes("AsyncTaskManager");
+
+const isHappyDomAbortMessage = (message: string): boolean =>
+  isAbortMessage(message) && isFromHappyDom(message);
+
+const isScrollLockMessage = (message: string): boolean =>
+  message.includes("resetBodyStyle") || message.includes("body-scroll-lock");
+
+// Error object helpers (for exceptions with stack traces)
+const isHappyDomAbortError = (error: Error): boolean => {
+  const stack = error.stack ?? "";
+  const message = error.message ?? "";
+  // Require Happy-DOM markers even for AbortError name to avoid hiding legitimate aborts
+  if (error.name === "AbortError") {
+    return stack.includes("happy-dom") || stack.includes("AsyncTaskManager");
+  }
+  return isAbortMessage(message) && isFromHappyDom(stack);
+};
+
+const isScrollLockError = (error: Error): boolean => {
+  const stack = error.stack ?? "";
+  return (
+    (error.message?.includes("document is not defined") ?? false) &&
+    stack.includes("body-scroll-lock")
+  );
+};
+
+// Console.error filter
 const originalConsoleError = console.error;
 console.error = (...args: unknown[]) => {
   const message = String(args[0]);
-  if (
-    message.includes("resetBodyStyle") ||
-    message.includes("body-scroll-lock")
-  ) {
-    return; // Suppress bits-ui scroll lock errors
+  if (isScrollLockMessage(message) || isHappyDomAbortMessage(message)) {
+    return;
   }
   originalConsoleError.apply(console, args);
 };
 
-// Also handle uncaught exceptions from bits-ui cleanup
+// Process event handlers for uncaught exceptions and rejections
 if (typeof process !== "undefined" && process.on) {
   process.on("uncaughtException", (error: Error) => {
-    if (
-      error.message?.includes("document is not defined") &&
-      error.stack?.includes("body-scroll-lock")
-    ) {
-      // Suppress bits-ui scroll lock cleanup errors
+    if (isScrollLockError(error) || isHappyDomAbortError(error)) {
       return;
     }
     throw error;
   });
+
+  process.on("unhandledRejection", (reason: unknown) => {
+    if (reason instanceof Error) {
+      if (isScrollLockError(reason) || isHappyDomAbortError(reason)) {
+        return;
+      }
+    }
+    // Re-throw as uncaught exception to maintain default behavior for real errors
+    throw reason;
+  });
+}
+
+// Stderr write interception for Happy-DOM abort messages
+// The stderr output includes the full stack trace with "happy-dom" and "AsyncTaskManager"
+if (typeof process !== "undefined" && process.stderr) {
+  const originalStderrWrite = process.stderr.write.bind(process.stderr);
+  process.stderr.write = ((
+    chunk: Uint8Array | string,
+    encodingOrCallback?: BufferEncoding | ((err?: Error) => void),
+    callback?: (err?: Error) => void,
+  ): boolean => {
+    const message = typeof chunk === "string" ? chunk : chunk.toString();
+    if (isHappyDomAbortMessage(message)) {
+      // Suppress Happy-DOM abort errors, but still call callback if provided
+      const cb =
+        typeof encodingOrCallback === "function"
+          ? encodingOrCallback
+          : callback;
+      if (cb) cb();
+      return true;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return originalStderrWrite(chunk, encodingOrCallback as any, callback);
+  }) as typeof process.stderr.write;
 }
 
 // Global test setup for Rackula
