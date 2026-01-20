@@ -1287,6 +1287,8 @@
           : undefined}
         {@const children = containerChildren.get(placedDevice.id) ?? []}
         {#if device}
+          {@const isHoveredContainer =
+            containerHoverInfo?.containerId === placedDevice.id}
           <RackDevice
             {device}
             position={placedDevice.position}
@@ -1307,14 +1309,12 @@
             {deviceLibrary}
             containerChildDevices={children}
             selectedChildId={selectedDeviceId}
-            isDragOverContainer={containerHoverInfo?.containerId ===
-              placedDevice.id}
-            dragTargetSlotId={containerHoverInfo?.containerId ===
-            placedDevice.id
+            isDragOverContainer={isHoveredContainer}
+            dragTargetSlotId={isHoveredContainer
               ? containerHoverInfo.targetSlotId
               : null}
-            isDragTargetValid={containerHoverInfo?.containerId ===
-              placedDevice.id && containerHoverInfo.isValidTarget}
+            isDragTargetValid={isHoveredContainer &&
+              containerHoverInfo.isValidTarget}
             onselect={ondeviceselect}
             ondragstart={() => handleDeviceDragStart(originalIndex)}
             ondragend={handleDeviceDragEnd}

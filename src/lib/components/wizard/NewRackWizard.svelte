@@ -520,7 +520,7 @@
         disabled={!canProceed}
       >
         {#if currentStep === totalSteps}
-          {config.layoutType === "bayed" ? "Create Bayed Group" : "Create Rack"}
+          {config.layoutType === "bayed" ? "Create Bayed Rack" : "Create Rack"}
         {:else}
           Next
         {/if}

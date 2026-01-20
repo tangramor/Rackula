@@ -269,7 +269,7 @@
       );
       if (!result) {
         toastStore.showToast(
-          "Could not create bayed group: insufficient capacity",
+          "Could not create Bayed Rack: insufficient capacity",
           "error",
         );
         return;

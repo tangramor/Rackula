@@ -243,6 +243,32 @@ export function hideNativeDragGhost(dataTransfer: DataTransfer): void {
 }
 
 /**
+ * Find the slot at a given X position within a container's slots
+ * @param slots - Array of slots to search
+ * @param xOffsetInRack - X position relative to rack interior (0 = left edge)
+ * @param interiorWidth - Width of rack interior in pixels
+ * @returns The matched slot or null if not found
+ */
+function findSlotAtPosition(
+  slots: Slot[],
+  xOffsetInRack: number,
+  interiorWidth: number,
+): Slot | null {
+  let accumulatedWidth = 0;
+  for (const slot of slots) {
+    const slotWidth = interiorWidth * (slot.width_fraction ?? 1.0);
+    if (
+      xOffsetInRack >= accumulatedWidth &&
+      xOffsetInRack < accumulatedWidth + slotWidth
+    ) {
+      return slot;
+    }
+    accumulatedWidth += slotWidth;
+  }
+  return null;
+}
+
+/**
  * Container drop target information
  * Returned when a drop position is detected within a container slot
  */
@@ -292,27 +318,20 @@ export function detectContainerDropTarget(
   const containerBottom = container.position;
   if (targetU < containerBottom || targetU > containerTop) return null;
 
-  // Calculate interior width (between rails)
+  // Find which slot based on x position
   const interiorWidth = rackWidth - RAIL_WIDTH * 2;
+  const slot = findSlotAtPosition(
+    containerType.slots,
+    xOffsetInRack,
+    interiorWidth,
+  );
+  if (!slot) return null;
 
-  // Determine which slot based on x position
-  let accumulatedWidth = 0;
-  for (const slot of containerType.slots) {
-    const slotWidth = interiorWidth * (slot.width_fraction ?? 1.0);
-    if (
-      xOffsetInRack >= accumulatedWidth &&
-      xOffsetInRack < accumulatedWidth + slotWidth
-    ) {
-      return {
-        containerId: container.id,
-        slotId: slot.id,
-        position: 0, // Place at bottom of slot
-      };
-    }
-    accumulatedWidth += slotWidth;
-  }
-
-  return null;
+  return {
+    containerId: container.id,
+    slotId: slot.id,
+    position: 0, // Place at bottom of slot
+  };
 }
 
 /**
@@ -366,28 +385,16 @@ export function detectContainerHover(
 
     // Found a container at this position - determine which slot
     const interiorWidth = rackWidth - RAIL_WIDTH * 2;
-    let accumulatedWidth = 0;
-    let targetSlotId: string | null = null;
-    let isValidTarget = false;
-
-    for (const slot of deviceType.slots) {
-      const slotWidth = interiorWidth * (slot.width_fraction ?? 1.0);
-      if (
-        xOffsetInRack >= accumulatedWidth &&
-        xOffsetInRack < accumulatedWidth + slotWidth
-      ) {
-        targetSlotId = slot.id;
-        // Check if dragged device is compatible with this slot
-        isValidTarget = isSlotCompatible(slot, draggedDevice);
-        break;
-      }
-      accumulatedWidth += slotWidth;
-    }
+    const slot = findSlotAtPosition(
+      deviceType.slots,
+      xOffsetInRack,
+      interiorWidth,
+    );
 
     return {
       containerId: placedDevice.id,
-      targetSlotId,
-      isValidTarget,
+      targetSlotId: slot?.id ?? null,
+      isValidTarget: slot ? isSlotCompatible(slot, draggedDevice) : false,
     };
   }
 

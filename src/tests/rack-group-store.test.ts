@@ -441,7 +441,7 @@ describe("Rack Group Store", () => {
   describe("updateRack with bayed groups", () => {
     it("rejects height changes for racks in bayed groups", () => {
       const store = getLayoutStore();
-      // Create bayed group (same heights required)
+      // Create bayed rack (same heights required)
       const result = store.addBayedRackGroup("Touring Bay", 2, 20, 19);
       expect(result).not.toBeNull();
       const rack1Id = result!.racks[0]!.id;
