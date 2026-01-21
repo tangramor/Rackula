@@ -37,7 +37,7 @@
 - Create: `api/tsconfig.json`
 - Create: `api/.gitignore`
 
-**Step 1: Create package.json**
+#### Step 1: Create package.json
 
 ```json
 {
@@ -65,7 +65,7 @@
 }
 ```
 
-**Step 2: Create tsconfig.json**
+#### Step 2: Create tsconfig.json
 
 ```json
 {
@@ -85,14 +85,14 @@
 }
 ```
 
-**Step 3: Create .gitignore**
+#### Step 3: Create .gitignore
 
 ```
 node_modules/
 *.log
 ```
 
-**Step 4: Commit**
+#### Step 4: Commit
 
 ```bash
 git add api/
@@ -107,7 +107,7 @@ git commit -m "chore: scaffold API sidecar package structure"
 
 - Create: `api/src/schemas/layout.ts`
 
-**Step 1: Create the schema file**
+#### Step 1: Create the schema file
 
 ```typescript
 /**
@@ -156,7 +156,7 @@ export type LayoutMetadata = z.infer<typeof LayoutMetadataSchema>;
 export type LayoutListItem = z.infer<typeof LayoutListItemSchema>;
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add api/src/schemas/layout.ts
@@ -171,7 +171,7 @@ git commit -m "feat(api): add layout validation schemas with counts"
 
 - Create: `api/src/storage/filesystem.ts`
 
-**Step 1: Create the storage layer**
+#### Step 1: Create the storage layer
 
 ```typescript
 /**
@@ -390,7 +390,7 @@ export function getAssetPath(
 }
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add api/src/storage/filesystem.ts
@@ -405,7 +405,7 @@ git commit -m "feat(api): implement filesystem storage layer with counts"
 
 - Create: `api/src/storage/assets.ts`
 
-**Step 1: Create the asset storage layer**
+#### Step 1: Create the asset storage layer
 
 ```typescript
 /**
@@ -631,7 +631,7 @@ export async function listLayoutAssets(layoutId: string): Promise<AssetInfo[]> {
 }
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add api/src/storage/assets.ts
@@ -648,7 +648,7 @@ git commit -m "feat(api): implement asset storage layer for images"
 - Create: `api/src/routes/assets.ts`
 - Create: `api/src/index.ts`
 
-**Step 1: Create the layouts routes**
+#### Step 1: Create the layouts routes
 
 ```typescript
 /**
@@ -767,7 +767,7 @@ layouts.delete("/:id", async (c) => {
 export default layouts;
 ```
 
-**Step 2: Create the assets routes**
+#### Step 2: Create the assets routes
 
 ```typescript
 /**
@@ -890,7 +890,7 @@ assets.delete("/:layoutId/:deviceSlug/:face", async (c) => {
 export default assets;
 ```
 
-**Step 3: Create the main entry point**
+#### Step 3: Create the main entry point
 
 ```typescript
 /**
@@ -947,7 +947,7 @@ export default {
 };
 ```
 
-**Step 4: Commit**
+#### Step 4: Commit
 
 ```bash
 git add api/src/
@@ -963,7 +963,7 @@ git commit -m "feat(api): implement Hono API routes for layouts and assets"
 - Create: `api/src/storage/filesystem.test.ts`
 - Create: `api/src/routes/layouts.test.ts`
 
-**Step 1: Create storage tests**
+#### Step 1: Create storage tests
 
 ```typescript
 /**
@@ -1089,12 +1089,12 @@ afterAll(async () => {
 });
 ```
 
-**Step 2: Run tests**
+#### Step 2: Run tests
 
 Run: `cd api && bun test`
 Expected: All tests pass
 
-**Step 3: Commit**
+#### Step 3: Commit
 
 ```bash
 git add api/src/*.test.ts
@@ -1109,7 +1109,7 @@ git commit -m "test(api): add storage and route tests"
 
 - Create: `api/Dockerfile`
 
-**Step 1: Create the Dockerfile**
+#### Step 1: Create the Dockerfile
 
 ```dockerfile
 # Rackula API Sidecar
@@ -1157,7 +1157,7 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 CMD ["bun", "src/index.ts"]
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add api/Dockerfile
@@ -1174,7 +1174,7 @@ git commit -m "build(api): add Dockerfile for API sidecar"
 
 - Create: `src/lib/utils/persistence-config.ts`
 
-**Step 1: Create the configuration module**
+#### Step 1: Create the configuration module
 
 ```typescript
 /**
@@ -1203,7 +1203,7 @@ export function isPersistenceAvailable(): boolean {
 }
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add src/lib/utils/persistence-config.ts
@@ -1218,7 +1218,7 @@ git commit -m "feat: add persistence configuration module"
 
 - Create: `src/lib/utils/persistence-api.ts`
 
-**Step 1: Create the API client**
+#### Step 1: Create the API client
 
 ```typescript
 /**
@@ -1451,7 +1451,7 @@ export function getAssetUrl(
 }
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add src/lib/utils/persistence-api.ts
@@ -1466,7 +1466,7 @@ git commit -m "feat: implement persistence API client with asset support"
 
 - Create: `src/lib/components/SaveStatus.svelte`
 
-**Step 1: Create the component using bits-ui Progress**
+#### Step 1: Create the component using bits-ui Progress
 
 ```svelte
 <!--
@@ -1588,7 +1588,7 @@ git commit -m "feat: implement persistence API client with asset support"
 </style>
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add src/lib/components/SaveStatus.svelte
@@ -1603,7 +1603,7 @@ git commit -m "feat: add SaveStatus component with bits-ui Progress"
 
 - Create: `src/lib/components/StartScreen.svelte`
 
-**Step 1: Create the component with Import support and fallback handling**
+#### Step 1: Create the component with Import support and fallback handling
 
 ```svelte
 <!--
@@ -2083,7 +2083,7 @@ git commit -m "feat: add SaveStatus component with bits-ui Progress"
 </style>
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add src/lib/components/StartScreen.svelte
@@ -2098,7 +2098,7 @@ git commit -m "feat: add StartScreen with import and offline fallback"
 
 - Modify: `src/App.svelte`
 
-**Step 1: Add imports**
+#### Step 1: Add imports
 
 Add after existing imports:
 
@@ -2114,7 +2114,7 @@ import {
 } from "$lib/utils/persistence-api";
 ```
 
-**Step 2: Add state variables**
+#### Step 2: Add state variables
 
 Add after existing state declarations:
 
@@ -2126,7 +2126,7 @@ let saveStatus = $state<SaveStatusType>("idle");
 let apiAvailable = $state(true);
 ```
 
-**Step 3: Add auto-save effect with status tracking**
+#### Step 3: Add auto-save effect with status tracking
 
 Add after existing `$effect` blocks:
 
@@ -2180,7 +2180,7 @@ $effect(() => {
 });
 ```
 
-**Step 4: Update StartScreen handler**
+#### Step 4: Update StartScreen handler
 
 ```typescript
 function handleStartScreenClose(layoutId?: string) {
@@ -2189,7 +2189,7 @@ function handleStartScreenClose(layoutId?: string) {
 }
 ```
 
-**Step 5: Update template**
+#### Step 5: Update template
 
 Add StartScreen conditional at the beginning:
 
@@ -2201,7 +2201,7 @@ Add StartScreen conditional at the beginning:
 {/if}
 ```
 
-**Step 6: Add SaveStatus to Toolbar area**
+#### Step 6: Add SaveStatus to Toolbar area
 
 In the Toolbar section, add the SaveStatus component (in the right zone):
 
@@ -2214,7 +2214,7 @@ In the Toolbar section, add the SaveStatus component (in the right zone):
 </Toolbar>
 ```
 
-**Step 7: Commit**
+#### Step 7: Commit
 
 ```bash
 git add src/App.svelte
@@ -2229,7 +2229,7 @@ git commit -m "feat: integrate persistence with StartScreen and SaveStatus"
 
 - Modify: `src/lib/components/Toolbar.svelte`
 
-**Step 1: Add SaveStatus slot/prop**
+#### Step 1: Add SaveStatus slot/prop
 
 Add to Props interface:
 
@@ -2243,7 +2243,7 @@ Add to props destructure:
 saveStatus,
 ```
 
-**Step 2: Add SaveStatus in right zone**
+#### Step 2: Add SaveStatus in right zone
 
 Add before the FileMenu in the right zone:
 
@@ -2253,14 +2253,14 @@ Add before the FileMenu in the right zone:
 {/if}
 ```
 
-**Step 3: Add import**
+#### Step 3: Add import
 
 ```typescript
 import SaveStatus from "./SaveStatus.svelte";
 import type { SaveStatus as SaveStatusType } from "$lib/utils/persistence-api";
 ```
 
-**Step 4: Commit**
+#### Step 4: Commit
 
 ```bash
 git add src/lib/components/Toolbar.svelte
@@ -2277,7 +2277,7 @@ git commit -m "feat: add SaveStatus indicator to Toolbar"
 
 - Modify: `deploy/nginx.conf`
 
-**Step 1: Add API and assets proxy**
+#### Step 1: Add API and assets proxy
 
 Add before the SPA fallback (`location /`):
 
@@ -2306,7 +2306,7 @@ Add before the SPA fallback (`location /`):
     }
 ```
 
-**Step 2: Update CSP header**
+#### Step 2: Update CSP header
 
 Update `connect-src` to include `/api/`:
 
@@ -2314,7 +2314,7 @@ Update `connect-src` to include `/api/`:
 connect-src 'self' https://t.racku.la https://static.cloudflareinsights.com /api/;
 ```
 
-**Step 3: Commit**
+#### Step 3: Commit
 
 ```bash
 git add deploy/nginx.conf
@@ -2329,7 +2329,7 @@ git commit -m "feat: add API proxy configuration to nginx"
 
 - Create: `docker-compose.persist.yml`
 
-**Step 1: Create the override file**
+#### Step 1: Create the override file
 
 ```yaml
 # Docker Compose override for persistent storage
@@ -2393,7 +2393,7 @@ services:
       - "3001"
 ```
 
-**Step 2: Commit**
+#### Step 2: Commit
 
 ```bash
 git add docker-compose.persist.yml
@@ -2409,7 +2409,7 @@ git commit -m "feat: add Docker Compose override for persistence"
 - Modify: `vite.config.ts`
 - Modify: `deploy/Dockerfile`
 
-**Step 1: Update vite.config.ts**
+#### Step 1: Update vite.config.ts
 
 Add to `define` section:
 
@@ -2419,7 +2419,7 @@ Add to `define` section:
 ),
 ```
 
-**Step 2: Update Dockerfile**
+#### Step 2: Update Dockerfile
 
 Add after existing build args:
 
@@ -2427,7 +2427,7 @@ Add after existing build args:
 ARG VITE_PERSIST_ENABLED=false
 ```
 
-**Step 3: Commit**
+#### Step 3: Commit
 
 ```bash
 git add vite.config.ts deploy/Dockerfile
