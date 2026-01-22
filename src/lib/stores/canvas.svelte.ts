@@ -5,7 +5,11 @@
 
 import type panzoom from "panzoom";
 import type { Rack, RackGroup, DeviceType } from "$lib/types";
-import { calculateFitAll, racksToPositions } from "$lib/utils/canvas";
+import {
+  calculateFitAll,
+  racksToPositions,
+  racksToPositionsWithIds,
+} from "$lib/utils/canvas";
 import { canvasDebug } from "$lib/utils/debug";
 import {
   U_HEIGHT_PX,
@@ -308,8 +312,35 @@ function focusRack(
   const viewportWidth = canvasElement.clientWidth;
   const viewportHeight = canvasElement.clientHeight;
 
-  // Calculate positions for only the focus racks
-  const rackPositions = racksToPositions(focusRacks, relevantGroups);
+  // Calculate positions for ALL racks using the authoritative helper
+  // This returns positions with rack IDs, enabling direct mapping
+  const allPositionsWithIds = racksToPositionsWithIds(allRacks, rackGroups);
+
+  // Build a map from rack ID to its canvas position
+  const rackIdToPosition = new Map<string, (typeof allPositionsWithIds)[0]>();
+  for (const pos of allPositionsWithIds) {
+    for (const rid of pos.rackIds) {
+      rackIdToPosition.set(rid, pos);
+    }
+  }
+
+  // Get the positions for only the racks we're focusing on
+  // Deduplicate since multiple racks in a bayed group share the same position
+  const rackPositions = [
+    ...new Set(
+      focusRacks
+        .map((r) => rackIdToPosition.get(r.id))
+        .filter((p): p is (typeof allPositionsWithIds)[0] => p !== undefined),
+    ),
+  ];
+
+  canvasDebug.focus(
+    "All %d racks -> %d positions",
+    allRacks.length,
+    allPositionsWithIds.length,
+  );
+  canvasDebug.focus("Focus rack positions: %o", rackPositions);
+
   const { zoom, panX, panY } = calculateFitAll(
     rackPositions,
     viewportWidth,
@@ -317,12 +348,10 @@ function focusRack(
   );
 
   canvasDebug.focus("Target rack IDs: %o", rackIds);
-  canvasDebug.focus("All relevant rack IDs: %o", [...allRelevantRackIds]);
   canvasDebug.focus("Viewport: %o", {
     width: viewportWidth,
     height: viewportHeight,
   });
-  canvasDebug.focus("Rack positions: %o", rackPositions);
   canvasDebug.focus("Calculated: %o", { zoom, panX, panY });
 
   // Apply zoom and pan with smooth animation
