@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] - 2026-01-24
+
+Major release featuring multi-rack support, persistent storage API, and improved data format.
+
+### Added
+
+- Multi-rack support: Create and manage multiple racks in a single layout (#938)
+- Persistent storage API: Self-hosted deployments can now save layouts server-side (#858, #864)
+- Runtime API detection: App automatically detects API availability without rebuild (#936, #941)
+- UUID-based layout storage with folder-per-layout structure (#916, #917, #926, #927)
+- Folder-structure zip export for browser-only users (#919, #928)
+- Import support for new folder-structure zip format (#920, #930)
+- Metadata section in YAML schema (id, name, schema_version, description) (#915, #922)
+- Version info displayed on splash screen (#905, #906)
+- Rackula logo on StartScreen (#902)
+- bits-ui Checkbox component (#828, #881)
+- bits-ui Switch component for toggle switches (#880, #884)
+- E2E tests for device metadata persistence (#887, #889)
+- E2E tests for rack Focus context menu (#908, #912)
+- Carlton E2E regression test for decimal positions (#883, #886)
+
+### Changed
+
+- Layout format migration: automatically converts old formats on first save (#918, #929)
+- About dialog: removed redundant header and X close button (#900, #904)
+
+### Fixed
+
+- localStorage migration for legacy rack format when upgrading from v0.6.x (#935, #940)
+- Focus and fit-all calculations for rack centering (#908, #913, #914)
+- fitAll dimensions for single-view racks (#911)
+- Autosave loading prevented after "New Layout" click (#899, #909)
+- RackList props restored after persistence refactor (#895, #896)
+- Rear view toggle works for bayed rack groups (#874, #888)
+- Decimal U positions accepted in layout files (#879, #885)
+- Half-width blocked slot indicators positioning (#875, #877)
+- Bayed racks exported as connected groups (#873)
+
+### Technical
+
+- Runtime API detection replaces build-time VITE_PERSIST_ENABLED flag (#936, #941)
+- API sidecar support for dev environment (#937)
+- CodeRabbit pre-push hook integration
+
 ## [0.6.16] - 2026-01-08
 
 Fixed some regressions in device placement logic after refactoring.
