@@ -612,10 +612,11 @@
 
 <style>
   .canvas {
-    flex: 1;
+    flex: 1 1 0; /* Explicit flex-basis: 0 ensures proper sizing */
     overflow: hidden;
     background-color: var(--canvas-bg);
     min-height: 0;
+    height: 100%; /* Ensure canvas fills parent even with small content */
     position: relative;
   }
 

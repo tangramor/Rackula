@@ -1593,11 +1593,13 @@
   }
 
   :global(.main-pane) {
-    flex: 1;
+    /* Note: paneforge applies inline flex: X 1 0px - don't override with flex: 1 */
     display: flex;
     flex-direction: column;
     overflow: hidden;
     min-height: 0;
+    height: 100%; /* Required for percentage-based children to fill space */
+    background-color: var(--canvas-bg);
   }
 
   /* Note: Mobile overscroll prevention should be in global styles (index.html or app.css) */
