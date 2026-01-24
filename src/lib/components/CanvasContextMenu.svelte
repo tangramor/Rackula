@@ -95,3 +95,16 @@
     </ContextMenu.Content>
   </ContextMenu.Portal>
 </ContextMenu.Root>
+
+<style>
+  /*
+   * bits-ui ContextMenu.Trigger creates a wrapper div that must fill its parent.
+   * Target by DOM position: any div between .main-pane and .canvas
+   */
+  :global(.main-pane > div:has(> .canvas)) {
+    display: flex;
+    flex: 1 1 0;
+    min-height: 0;
+    height: 100%;
+  }
+</style>
