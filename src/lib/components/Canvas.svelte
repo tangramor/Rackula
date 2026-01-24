@@ -15,12 +15,10 @@
     ZOOM_MAX,
   } from "$lib/stores/canvas.svelte";
   import { getUIStore } from "$lib/stores/ui.svelte";
-  import { DRAWER_WIDTH } from "$lib/constants/layout";
   import { debug } from "$lib/utils/debug";
   import { getPlacementStore } from "$lib/stores/placement.svelte";
   // Note: getViewportStore removed - was only used for PlacementIndicator condition
   import { hapticSuccess } from "$lib/utils/haptics";
-  import { toHumanUnits } from "$lib/utils/position";
   import RackDualView from "./RackDualView.svelte";
   import BayedRackView from "./BayedRackView.svelte";
   import WelcomeScreen from "./WelcomeScreen.svelte";
@@ -48,7 +46,6 @@
         slug: string;
         position: number;
         face: "front" | "rear";
-        slot_position?: import("$lib/types").SlotPosition;
       }>,
     ) => void;
     ondevicemove?: (
@@ -68,6 +65,8 @@
     ) => void;
     /** Mobile long press for rack editing */
     onracklongpress?: (event: CustomEvent<{ rackId: string }>) => void;
+    /** Rack context menu: add device callback */
+    onrackadddevice?: (rackId: string) => void;
     /** Rack context menu: edit rack callback */
     onrackedit?: (rackId: string) => void;
     /** Rack context menu: rename rack callback */
@@ -76,10 +75,6 @@
     onrackduplicate?: (rackId: string) => void;
     /** Rack context menu: delete rack callback */
     onrackdelete?: (rackId: string) => void;
-    /** Rack context menu: export rack callback */
-    onrackexport?: (rackIds: string[]) => void;
-    /** Rack context menu: focus rack callback (pans and zooms canvas to fit the rack) */
-    onrackfocus?: (rackIds: string[]) => void;
   }
 
   let {
@@ -96,12 +91,11 @@
     ondevicemove,
     ondevicemoverack,
     onracklongpress,
+    onrackadddevice,
     onrackedit,
     onrackrename,
     onrackduplicate,
     onrackdelete,
-    onrackexport,
-    onrackfocus,
   }: Props = $props();
 
   const layoutStore = getLayoutStore();
@@ -133,12 +127,7 @@
       hapticSuccess();
       placementStore.completePlacement();
       // Reset view to show full rack after placement completes
-      const rightOffset = uiStore.rightDrawerOpen ? DRAWER_WIDTH : 0;
-      canvasStore.fitAll(
-        layoutStore.racks,
-        layoutStore.rack_groups,
-        rightOffset,
-      );
+      canvasStore.fitAll(layoutStore.racks);
     }
   }
 
@@ -164,32 +153,6 @@
       .filter((entry) => entry.racks.length > 0);
 
     return { groupEntries, ungroupedRacks };
-  });
-
-  // Determine the rightmost rack ID for "banana for scale" display
-  // Visual layout: groups render left-to-right, then ungrouped racks
-  const rightmostRackId = $derived.by(() => {
-    const { groupEntries, ungroupedRacks } = organizedRacks;
-
-    // Ungrouped racks appear after groups, so rightmost is last ungrouped rack
-    if (ungroupedRacks.length > 0) {
-      return ungroupedRacks[ungroupedRacks.length - 1].id;
-    }
-
-    // No ungrouped racks - check last group entry
-    if (groupEntries.length > 0) {
-      const lastGroup = groupEntries[groupEntries.length - 1];
-      // For bayed groups, banana isn't supported (BayedRackView doesn't render it)
-      // For non-bayed groups, rightmost is the last rack in the group
-      if (
-        lastGroup.group.layout_preset !== "bayed" &&
-        lastGroup.racks.length > 0
-      ) {
-        return lastGroup.racks[lastGroup.racks.length - 1].id;
-      }
-    }
-
-    return null;
   });
 
   // Panzoom container reference
@@ -268,46 +231,12 @@
 
       // Center content on initial load
       requestAnimationFrame(() => {
-        const rightOffset = uiStore.rightDrawerOpen ? DRAWER_WIDTH : 0;
-        canvasStore.fitAll(racks, rackGroups, rightOffset);
+        canvasStore.fitAll(racks);
       });
-
-      // Set up ResizeObserver to auto-fit when viewport changes (sidebar collapse, etc.)
-      let resizeTimeout: ReturnType<typeof setTimeout> | null = null;
-      let initialLoadComplete = false;
-
-      // Mark initial load as complete after a short delay
-      const initTimeout = setTimeout(() => {
-        initialLoadComplete = true;
-      }, 100);
-
-      const resizeObserver = new ResizeObserver(() => {
-        // Skip if initial load hasn't completed (fitAll already called above)
-        if (!initialLoadComplete) return;
-
-        // Debounce resize events (300ms)
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-          debug.log("ResizeObserver: viewport changed, calling fitAll");
-          const rightOffset = uiStore.rightDrawerOpen ? DRAWER_WIDTH : 0;
-          canvasStore.fitAll(
-            layoutStore.racks,
-            layoutStore.rack_groups,
-            rightOffset,
-          );
-        }, 300);
-      });
-
-      if (canvasContainer) {
-        resizeObserver.observe(canvasContainer);
-      }
 
       return () => {
         debug.log("Disposing panzoom");
         canvasStore.disposePanzoom();
-        if (resizeTimeout) clearTimeout(resizeTimeout);
-        clearTimeout(initTimeout);
-        resizeObserver.disconnect();
       };
     }
   });
@@ -316,7 +245,6 @@
     // Only clear selection if clicking directly on the canvas (not on a rack)
     if (event.target === event.currentTarget) {
       selectionStore.clearSelection();
-      layoutStore.setActiveRack(null);
     }
   }
 
@@ -325,22 +253,6 @@
     layoutStore.setActiveRack(rackId);
     selectionStore.selectRack(rackId);
     onrackselect?.(event);
-  }
-
-  function handleGroupSelect(event: CustomEvent<{ groupId: string }>) {
-    const { groupId } = event.detail;
-    // Find the first rack in the group to set as active (for device operations)
-    const group = layoutStore.rack_groups.find((g) => g.id === groupId);
-    let firstRackId: string | undefined;
-    if (group && group.rack_ids.length > 0) {
-      // Find the first rack in the group
-      const firstRack = racks.find((r) => r.id === group.rack_ids[0]);
-      if (firstRack) {
-        firstRackId = firstRack.id;
-        layoutStore.setActiveRack(firstRackId);
-      }
-    }
-    selectionStore.selectGroup(groupId, firstRackId);
   }
 
   function handleDeviceSelect(
@@ -373,11 +285,10 @@
       slug: string;
       position: number;
       face: "front" | "rear";
-      slot_position?: import("$lib/types").SlotPosition;
     }>,
   ) {
-    const { rackId, slug, position, face, slot_position } = event.detail;
-    layoutStore.placeDevice(rackId, slug, position, face, slot_position);
+    const { rackId, slug, position, face } = event.detail;
+    layoutStore.placeDevice(rackId, slug, position, face);
     ondevicedrop?.(event);
   }
 
@@ -427,14 +338,13 @@
     const activeRack = layoutStore.activeRack;
     if (!activeRack || activeRack.devices.length === 0) return "";
     const deviceNames = [...activeRack.devices]
-      .sort((a, b) => b.position - a.position) // Top to bottom (internal units preserve order)
+      .sort((a, b) => b.position - a.position) // Top to bottom
       .map((d) => {
         const deviceType = layoutStore.device_types.find(
           (dt) => dt.slug === d.device_type,
         );
         const name = d.label || deviceType?.model || d.device_type;
-        // Convert internal units to human U for display
-        return `U${toHumanUnits(d.position)}: ${name}`;
+        return `U${d.position}: ${name}`;
       });
     return `Active rack devices from top to bottom: ${deviceNames.join(", ")}`;
   });
@@ -451,7 +361,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_tabindex, a11y_no_noninteractive_element_interactions (role="application" makes this interactive per WAI-ARIA) -->
 <CanvasContextMenu
   onnewrack={handleNewRack}
-  onfitall={() => onfitall?.() ?? canvasStore.fitAll(racks, rackGroups)}
+  onfitall={() => onfitall?.() ?? canvasStore.fitAll(racks)}
   onresetzoom={() => onresetzoom?.() ?? canvasStore.resetZoom()}
   {ontoggletheme}
   theme={uiStore.theme}
@@ -481,7 +391,6 @@
           {#each organizedRacks.groupEntries as { group, racks: groupRacks } (group.id)}
             {#if group.layout_preset === "bayed"}
               <!-- Bayed/touring racks use special stacked view -->
-              <!-- showRear derived from first rack in group (all bays share the same setting) -->
               <BayedRackView
                 {group}
                 racks={groupRacks}
@@ -490,21 +399,16 @@
                 selectedDeviceId={selectionStore.selectedType === "device"
                   ? selectionStore.selectedDeviceId
                   : null}
-                selectedRackId={selectionStore.selectedType === "rack" ||
-                selectionStore.selectedType === "group"
+                selectedRackId={selectionStore.selectedType === "rack"
                   ? selectionStore.selectedRackId
-                  : null}
-                selectedGroupId={selectionStore.selectedType === "group"
-                  ? selectionStore.selectedGroupId
                   : null}
                 displayMode={uiStore.displayMode}
                 showLabelsOnImages={uiStore.showLabelsOnImages}
-                showRear={groupRacks[0]?.show_rear ?? true}
                 showAnnotations={uiStore.showAnnotations}
                 annotationField={uiStore.annotationField}
                 {partyMode}
                 {enableLongPress}
-                ongroupselect={handleGroupSelect}
+                onselect={(e) => handleRackSelect(e)}
                 ondeviceselect={(e) => {
                   const rackId = activeRackId ?? groupRacks[0]?.id;
                   if (rackId) handleDeviceSelect(rackId, e);
@@ -517,8 +421,7 @@
                   if (rackId) handlePlacementTap(rackId, e);
                 }}
                 onlongpress={(e) => onracklongpress?.(e)}
-                onexport={(rackIds) => onrackexport?.(rackIds)}
-                onfocus={onrackfocus}
+                onadddevice={(rackId) => onrackadddevice?.(rackId)}
                 onedit={(rackId) => onrackedit?.(rackId)}
                 onrename={(rackId) => onrackrename?.(rackId)}
                 onduplicate={(rackId) => onrackduplicate?.(rackId)}
@@ -548,8 +451,7 @@
                         showLabelsOnImages={uiStore.showLabelsOnImages}
                         showAnnotations={uiStore.showAnnotations}
                         annotationField={uiStore.annotationField}
-                        showBanana={uiStore.showBanana &&
-                          rack.id === rightmostRackId}
+                        showBanana={uiStore.showBanana}
                         {partyMode}
                         {enableLongPress}
                         onselect={(e) => handleRackSelect(e)}
@@ -559,10 +461,7 @@
                         ondevicemoverack={(e) => handleDeviceMoveRack(e)}
                         onplacementtap={(e) => handlePlacementTap(rack.id, e)}
                         onlongpress={(e) => onracklongpress?.(e)}
-                        onexport={() => onrackexport?.([rack.id])}
-                        onfocus={onrackfocus
-                          ? () => onrackfocus([rack.id])
-                          : undefined}
+                        onadddevice={() => onrackadddevice?.(rack.id)}
                         onedit={() => onrackedit?.(rack.id)}
                         onrename={() => onrackrename?.(rack.id)}
                         onduplicate={() => onrackduplicate?.(rack.id)}
@@ -595,7 +494,7 @@
                 showLabelsOnImages={uiStore.showLabelsOnImages}
                 showAnnotations={uiStore.showAnnotations}
                 annotationField={uiStore.annotationField}
-                showBanana={uiStore.showBanana && rack.id === rightmostRackId}
+                showBanana={uiStore.showBanana}
                 {partyMode}
                 {enableLongPress}
                 onselect={(e) => handleRackSelect(e)}
@@ -605,8 +504,7 @@
                 ondevicemoverack={(e) => handleDeviceMoveRack(e)}
                 onplacementtap={(e) => handlePlacementTap(rack.id, e)}
                 onlongpress={(e) => onracklongpress?.(e)}
-                onexport={() => onrackexport?.([rack.id])}
-                onfocus={onrackfocus ? () => onrackfocus([rack.id]) : undefined}
+                onadddevice={() => onrackadddevice?.(rack.id)}
                 onedit={() => onrackedit?.(rack.id)}
                 onrename={() => onrackrename?.(rack.id)}
                 onduplicate={() => onrackduplicate?.(rack.id)}
@@ -624,11 +522,10 @@
 
 <style>
   .canvas {
-    flex: 1 1 0; /* Explicit flex-basis: 0 ensures proper sizing */
+    flex: 1;
     overflow: hidden;
     background-color: var(--canvas-bg);
     min-height: 0;
-    height: 100%; /* Ensure canvas fills parent even with small content */
     position: relative;
   }
 
@@ -650,7 +547,6 @@
     /* Multi-rack mode: horizontal layout of all racks */
     display: flex;
     flex-direction: row;
-    align-items: flex-end; /* Bottom-align racks (matches racksToPositionsWithIds calculation) */
     gap: var(--space-6);
     padding: var(--space-4);
   }
@@ -662,8 +558,10 @@
     transition: box-shadow var(--duration-fast) var(--ease-out);
   }
 
-  /* NOTE: .rack-wrapper.active box-shadow removed - selection outline in
-     RackDualView/BayedRackView now handles visual feedback to avoid double rings */
+  .rack-wrapper.active {
+    /* Active rack visual indicator - accent outline */
+    box-shadow: 0 0 0 3px var(--colour-selection);
+  }
 
   /* Rack group visual container (for non-bayed groups; bayed uses BayedRackView) */
   .rack-group {
