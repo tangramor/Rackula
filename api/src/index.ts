@@ -55,7 +55,9 @@ app.onError((err, c) => {
 });
 
 // Startup
-const parsedPort = Number.parseInt(process.env.PORT ?? "3001", 10);
+// RACKULA_API_PORT preferred, PORT for backwards compatibility
+const portEnv = process.env.RACKULA_API_PORT ?? process.env.PORT ?? "3001";
+const parsedPort = Number.parseInt(portEnv, 10);
 const port = Number.isNaN(parsedPort) ? 3001 : parsedPort;
 
 await ensureDataDir();
