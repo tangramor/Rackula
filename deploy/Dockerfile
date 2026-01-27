@@ -36,11 +36,13 @@ LABEL org.opencontainers.image.description="Rack Layout Designer for Homelabbers
 LABEL org.opencontainers.image.licenses="MIT"
 LABEL org.opencontainers.image.title="Rackula"
 
-# API proxy configuration (processed by nginx's envsubst on startup)
+# API proxy configuration
 # API_HOST: Hostname or IP of the API server (default: rackula-api)
 # API_PORT: Port the API listens on (default: 3001)
+# NGINX_ENVSUBST_FILTER: Regex filter - only substitute these env vars, leave nginx vars ($host etc.) alone
 ENV API_HOST=rackula-api
 ENV API_PORT=3001
+ENV NGINX_ENVSUBST_FILTER=^(API_HOST|API_PORT)$
 
 # Copy nginx config template (auto-processed by nginx's /docker-entrypoint.d/20-envsubst-on-templates.sh)
 COPY ./deploy/nginx.conf.template /etc/nginx/templates/default.conf.template
