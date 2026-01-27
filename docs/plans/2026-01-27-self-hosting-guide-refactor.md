@@ -6,6 +6,8 @@
 
 **Issue:** #944
 
+**Blocked by:** #973 (CI must publish `:persist` tag before this guide can reference it)
+
 ---
 
 ## Problem Statement
@@ -44,10 +46,10 @@ The current self-hosting guide (docs/guides/SELF-HOSTING.md) has several issues:
 
 ## Solution Architecture
 
-### Prerequisites (must be built first)
+### Prerequisites
 
-1. **CI publishes `:persist` tag** - Pre-built image with `VITE_PERSIST_ENABLED=true`
-2. **New `deploy/docker-compose.persist.yml`** - Simplified compose for self-hosters
+1. **CI publishes `:persist` tag** - See #973 (must be completed before this work)
+2. **New `deploy/docker-compose.persist.yml`** - Created as part of this plan (Task 1)
 
 ### New Document Structure
 
@@ -73,28 +75,7 @@ The current self-hosting guide (docs/guides/SELF-HOSTING.md) has several issues:
 
 ## Implementation Tasks
 
-### Task 1: Add `:persist` tag to CI
-
-**Files:**
-
-- Create or modify: `.github/workflows/build-persist.yml` or modify `deploy-prod.yml`
-
-**Requirements:**
-
-- On version tag push (v\*), build and publish:
-  - `ghcr.io/rackulalives/rackula:persist`
-  - `ghcr.io/rackulalives/rackula:vX.Y.Z-persist`
-- Build args: `VITE_PERSIST_ENABLED=true`
-- Can be same workflow as main build, just additional tags
-
-**Acceptance criteria:**
-
-- `docker pull ghcr.io/rackulalives/rackula:persist` works
-- Container has persistence UI enabled
-
----
-
-### Task 2: Create docker-compose.persist.yml
+### Task 1: Create docker-compose.persist.yml
 
 **Files:**
 
@@ -181,7 +162,7 @@ services:
 
 ---
 
-### Task 3: Rewrite SELF-HOSTING.md
+### Task 2: Rewrite SELF-HOSTING.md
 
 **Files:**
 
@@ -397,7 +378,7 @@ For authentication, use your reverse proxy (Traefik, Caddy, nginx) with:
 
 ---
 
-### Task 4: Update root docker-compose.yml comments
+### Task 3: Update root docker-compose.yml comments
 
 **Files:**
 - Modify: `docker-compose.yml` (root)
@@ -423,9 +404,8 @@ For authentication, use your reverse proxy (Traefik, Caddy, nginx) with:
 
 ## Verification Checklist
 
-After implementation, verify:
+After implementation (requires #973 to be completed first):
 
-- [ ] `docker pull ghcr.io/rackulalives/rackula:persist` works
 - [ ] Quick Start commands work end-to-end on fresh system
 - [ ] Persistence actually works (create layout, restart, layout persists)
 - [ ] All environment variables work as documented
