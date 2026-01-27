@@ -41,6 +41,7 @@ services:
       - /var/cache/nginx:size=10M
       - /var/run:size=1M
       - /tmp:size=5M
+      - /etc/nginx/conf.d:size=1M,uid=101,gid=101
 
     logging:
       driver: json-file
