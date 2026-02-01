@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.7] - 2026-01-31
+
+### Fixed
+
+- Persistence mode now actually persists data with proper YAML serialization (PR #1001)
+- Auto-save now works correctly with cloud status indicators
+- Start screen displays appropriately when persistence is enabled
+- Layout auto-loads on startup if a saved layout exists
+- Metadata and UUID handling for persisted layouts
+- Thanks to @timothystewart6 for the comprehensive persistence fix!
+
+### Technical
+
+- Production deployment now syncs docker-compose.yml from repo to prevent config drift
+- Added --remove-orphans flag to clean up stale containers during deployment
+- Fixed inch mark character escaping in changelog for GitHub Actions
+
 ## [0.7.6] - 2026-01-31
 
 ### Added
